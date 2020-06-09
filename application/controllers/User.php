@@ -14,8 +14,13 @@ class User extends CI_Controller
       redirect("auth/login");
     }
   }
-  public function profile()
+  public function home()
   {
-      $this->load->view('profile');
+
+      if(isset($_POST["messages"])){
+        redirect("Api/messages","refresh");
+      }
+      $this->load->view('home');
   }
+
 }
