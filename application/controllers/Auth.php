@@ -3,7 +3,6 @@
 class Auth extends CI_Controller{
   public function login()
   {
-
     $this->form_validation->set_rules('username','Username','Required');
     $this->form_validation->set_rules('password','Password','Required|min_length[5]');
 
@@ -19,7 +18,8 @@ class Auth extends CI_Controller{
       $user = $query->row();
 
       if($user->email){
-        $this->session->set_flashdata("success","you are logged in");
+    //    $this->load->library('session');
+       //$this->session->set_flashdata("success","you are logged in");
 
 
         $_SESSION['user_logged']= TRUE;
