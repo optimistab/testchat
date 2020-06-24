@@ -31,21 +31,23 @@ class Api extends CI_Controller {
     }
     public function messages()
     {
-        $this->load->library('session');
-      if(!isset($_SESSION['user_logged'])){
-        $this->session->set_flashdata("error","Please login first to view this page");
-        redirect("auth/login");
-      }
+    //    $this->load->library('session');
+      // if(!isset($_SESSION['user_logged'])){
+      //   $this->session->set_flashdata("error","Please login first to view this page");
+      //   redirect("auth/login");
+      // }
 
-      $twilioAccountSid = 'ACe8ab2bc356670e13e162c6e09ff2abfd';
+      $twilioAccountSid = 'AC737613321b1765f9bfbdaf11222cf3a5';
   //    $twilioApiKey = 'SKea54265d0834a6c031f3fa83e0dab935';
     //  $twilioApiSecret = 'BHDYJ6UJOJHU6Lv9HrIaZtYaswlTqz7q';
-      $twilioServiceSid = 'IS65f8dd0532eb44a3a43507f4c16ece87';
-      $authtoken = '3040f869b07033bcd782e746edceeb74';
+      $twilioServiceSid = 'IS7bce28e279a04d11b2b808ec212c7087';
+      $authtoken = '99b2a453866dd784cbdefaee07fabbfb';
+      $twilioApiKey = 'SK626aeccb14751a59e55524ce5448df55';
+      $twilioApiSecret = 'BSJoKaITLmtUsTc1dHinTer4laqFSKzU';
 // Required for IP messaging grant
   //    $ipmServiceSid = 'IS7bce28e279a04d11b2b808ec212c7087';
 
-      $twilio = new Client($twilioAccountSid, $authtoken);
+
       $identity = $_SESSION['username'];
       // $user = $twilio->chat->v2->services($twilioServiceSid)
       //                    ->users
@@ -55,8 +57,74 @@ class Api extends CI_Controller {
 
       $result['users'] = $this->Api_model->get_users();
 
-      $tokengenerator = new TokenController ();
-      $accesstoken = $tokengenerator->generate();
+      // $tokengenerator = new TokenController ();
+      // $accesstoken = $tokengenerator->generate();
+
+      $token = new AccessToken(
+      $twilioAccountSid,
+      $twilioApiKey,
+      $twilioApiSecret,
+      3600,
+      $identity
+      );
+
+      // Create Chat grant
+      $chatGrant = new ChatGrant();
+      $chatGrant->setServiceSid($twilioServiceSid);
+
+      // Add grant to token
+      $token->addGrant($chatGrant);
+
+      $accesstoken = $token->toJWT();
+
+      $authUser = $identity;
+      $otherUser = User::find(explode('-', $ids)[1]);
+      $allusers = User::where('id', '<>', $authUser->id)->get();
+
+
+      $twilio = new Client($twilioAccountSid, $authtoken);
+      // Fetch channel or create a new one if it doesn't exist
+      try {
+              $channel = $twilio->chat->v2->services($twilioServiceSid)
+                      ->channels($ids)
+                      ->fetch();
+      } catch (\Twilio\Exceptions\RestException $e) {
+              $channel = $twilio->chat->v2->services($twilioServiceSid)
+                      ->channels
+                      ->create([
+                              'uniqueName' => $ids,
+                              'type' => 'private',
+                      ]);
+      }
+
+      // Add first user to the channel
+      try {
+              $twilio->chat->v2->services($twilioServiceSid)
+                      ->channels($ids)
+                      ->members($authUser->username)
+                      ->fetch();
+
+      } catch (\Twilio\Exceptions\RestException $e) {
+              $member = $twilio->chat->v2->services($twilioServiceSid)
+                      ->channels($ids)
+                      ->members
+                      ->create($authUser->username);
+      }
+
+      // Add second user to the channel
+      try {
+              $twilio->chat->v2->services($twilioServiceSid)
+                      ->channels($ids)
+                      ->members($otherUser->username)
+                      ->fetch();
+
+      } catch (\Twilio\Exceptions\RestException $e) {
+              $twilio->chat->v2->services($twilioServiceSid)
+                      ->channels($ids)
+                      ->members
+                      ->create($otherUser->username);
+      }
+
 
       $this->load->view('chat',$accesstoken,$result);
     }

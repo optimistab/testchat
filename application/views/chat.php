@@ -10,7 +10,6 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <title>Chat Application</title>
-    <script src="<?php echo base_url(); ?>views/mainfxns.js"></script>
     <script src="<?php echo base_url(); ?>assets/js/app.js"></script>
     <script>
     <?php  const Chat = require('twilio-chat');
@@ -39,15 +38,15 @@
           <div class="card">
             <div class="card-header">Users</div>
             <div class="card-body">
-        <?php   @if ($users->isEmpty()) ?>
+        <?php   if ($users->isEmpty()) ?>
               <p>No users</p>
-          <?php    @else ?>
+          <?php    else ?>
               <ul class="list-group list-group-flush">
-            <?php    @foreach ($users as $user) ?>
-              <a href="{{ route('messages.chat', [ 'ids' => auth()->user()->id  . '-' . $user->id ]) }}" class="list-group-item list-group-item-action">{{ $user->name }}</a>
-      <?php      @endforeach ?>
+            <?php    foreach ($users as $user) ?>
+              <a href="{{ route('messages.chat', [ 'ids' => auth()->user()->id  . '-' . $user->id ]) }}" class="list-group-item list-group-item-action">{{ $user->username }}</a>
+      <?php      endforeach ?>
           </ul>
-    <?php     @endif ?>
+    <?php     endif ?>
           </div>
         </div>
       </div>
