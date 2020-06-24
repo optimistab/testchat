@@ -43,7 +43,7 @@
           <?php    else ?>
               <ul class="list-group list-group-flush">
             <?php    foreach ($users as $user) ?>
-              <a href="{{ route('messages.chat', [ 'ids' => auth()->user()->id  . '-' . $user->id ]) }}" class="list-group-item list-group-item-action">{{ $user->username }}</a>
+              <a href="{{ route('messages.chat', [ 'ids' => auth()->user()->id  . '-' . $user->user_id ]) }}" class="list-group-item list-group-item-action">{{ $user->username }}</a>
       <?php      endforeach ?>
           </ul>
     <?php     endif ?>

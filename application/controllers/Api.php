@@ -37,15 +37,9 @@ class Api extends CI_Controller {
       //   redirect("auth/login");
       // }
 
-      $twilioAccountSid = 'AC737613321b1765f9bfbdaf11222cf3a5';
-  //    $twilioApiKey = 'SKea54265d0834a6c031f3fa83e0dab935';
-    //  $twilioApiSecret = 'BHDYJ6UJOJHU6Lv9HrIaZtYaswlTqz7q';
-      $twilioServiceSid = 'IS7bce28e279a04d11b2b808ec212c7087';
-      $authtoken = '99b2a453866dd784cbdefaee07fabbfb';
-      $twilioApiKey = 'SK626aeccb14751a59e55524ce5448df55';
-      $twilioApiSecret = 'BSJoKaITLmtUsTc1dHinTer4laqFSKzU';
+
 // Required for IP messaging grant
-  //    $ipmServiceSid = 'IS7bce28e279a04d11b2b808ec212c7087';
+
 
 
       $identity = $_SESSION['username'];
@@ -61,16 +55,16 @@ class Api extends CI_Controller {
       // $accesstoken = $tokengenerator->generate();
 
       $token = new AccessToken(
-      $twilioAccountSid,
-      $twilioApiKey,
-      $twilioApiSecret,
+      env('twilioAccountSid'),
+      env('twilioApiKey'),
+      env('twilioApiSecret'),
       3600,
       $identity
       );
 
       // Create Chat grant
       $chatGrant = new ChatGrant();
-      $chatGrant->setServiceSid($twilioServiceSid);
+      $chatGrant->setServiceSid(env('twilioServiceSid'));
 
       // Add grant to token
       $token->addGrant($chatGrant);
@@ -82,14 +76,14 @@ class Api extends CI_Controller {
       $allusers = User::where('id', '<>', $authUser->id)->get();
 
 
-      $twilio = new Client($twilioAccountSid, $authtoken);
+      $twilio = new Client(env('twilioAccountSid'), env('authtoken');
       // Fetch channel or create a new one if it doesn't exist
       try {
-              $channel = $twilio->chat->v2->services($twilioServiceSid)
+              $channel = $twilio->chat->v2->services(env('twilioServiceSid'))
                       ->channels($ids)
                       ->fetch();
       } catch (\Twilio\Exceptions\RestException $e) {
-              $channel = $twilio->chat->v2->services($twilioServiceSid)
+              $channel = $twilio->chat->v2->services(env('twilioServiceSid'))
                       ->channels
                       ->create([
                               'uniqueName' => $ids,
@@ -99,13 +93,13 @@ class Api extends CI_Controller {
 
       // Add first user to the channel
       try {
-              $twilio->chat->v2->services($twilioServiceSid)
+              $twilio->chat->v2->services(env('twilioServiceSid'))
                       ->channels($ids)
                       ->members($authUser->username)
                       ->fetch();
 
       } catch (\Twilio\Exceptions\RestException $e) {
-              $member = $twilio->chat->v2->services($twilioServiceSid)
+              $member = $twilio->chat->v2->services(env('twilioServiceSid'))
                       ->channels($ids)
                       ->members
                       ->create($authUser->username);
@@ -113,13 +107,13 @@ class Api extends CI_Controller {
 
       // Add second user to the channel
       try {
-              $twilio->chat->v2->services($twilioServiceSid)
+              $twilio->chat->v2->services(env('twilioServiceSid'))
                       ->channels($ids)
                       ->members($otherUser->username)
                       ->fetch();
 
       } catch (\Twilio\Exceptions\RestException $e) {
-              $twilio->chat->v2->services($twilioServiceSid)
+              $twilio->chat->v2->services(env('twilioServiceSid'))
                       ->channels($ids)
                       ->members
                       ->create($otherUser->username);
